@@ -1,0 +1,84 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  SONAR_TOKEN: $(SONAR_TOKEN)
+  DOCKER_IMAGE: 'your-docker-image'
+  DOCKER_REGISTRY: 'your-docker-registry'
+
+jobs:
+- job: SonarQubeAnalysis
+  displayName: 'Run SonarQube Analysis'
+  steps:
+  - script: |
+      sudo apt-get update
+      sudo apt-get install openjdk-11-jdk -y
+    displayName: 'Install JDK'
+  
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.x'
+      addToPath: true
+
+  - script: |
+      python -m venv venv
+      source venv/bin/activate
+      pip install -r requirements.txt
+    displayName: 'Install dependencies'
+
+  - task: SonarQubePrepare@4
+    inputs:
+      SonarQube: 'SonarQube'
+      scannerMode: 'CLI'
+      configMode: 'manual'
+      cliProjectKey: 'django-sample'
+      cliSources: '.'
+      extraProperties: |
+        sonar.python.version=3
+        sonar.projectVersion=1.0
+
+  - task: SonarQubeAnalyze@4
+
+  - task: SonarQubePublish@4
+    inputs:
+      pollingTimeoutSec: '300'
+
+- job: DockerBuildPush
+  displayName: 'Build and Push Docker Image'
+  dependsOn: SonarQubeAnalysis
+  condition: succeeded()
+
+  steps:
+  - script: |
+      docker build -t $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(Build.BuildId) .
+      echo $(SONAR_TOKEN) | docker login $(DOCKER_REGISTRY) --username $(DOCKER_USERNAME) --password-stdin
+      docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(Build.BuildId)
+    displayName: 'Build and Push Docker Image'
+
+- job: HelloWorld
+  displayName: 'Print Hello World 10 times'
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - script: |
+      for i in {1..10}
+      do
+        echo "Hola Mundo"
+      done
+    displayName: 'Print Hola Mundo 10 times'
+
+- job: CreateFiles
+  displayName: 'Create and Print Files with Date'
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - script: |
+      for i in {1..10}
+      do
+        echo "$(date)" > "file_$i.txt"
+        cat "file_$i.txt"
+      done
+    displayName: 'Create 10 files with date and display them'
