@@ -20,7 +20,6 @@ jobs:
       versionSpec: '3'
       disableDownloadFromRegistry: true
       addToPath: true
-      architecture: 'x64'
 
   - script: |
       python -m venv venv
@@ -28,7 +27,7 @@ jobs:
       pip install -r requirements.txt
     displayName: 'Install dependencies'
 
-  - task: SonarQubePrepare@4
+  - task: SonarQubePrepare@6
     inputs:
       SonarQube: 'demo-lab-sonar'
       scannerMode: 'CLI'
@@ -38,8 +37,8 @@ jobs:
       extraProperties: |
         sonar.python.version=3
         sonar.projectVersion=1.0
-  - task: SonarQubeAnalyze@4
-  - task: SonarQubePublish@4
+  - task: SonarQubeAnalyze@6
+  - task: SonarQubePublish@6
     inputs:
       pollingTimeoutSec: '300'
 
