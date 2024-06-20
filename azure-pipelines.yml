@@ -33,9 +33,9 @@ jobs:
       configMode: 'manual'
       cliProjectKey: 'demo-lab_demo-lab_65daae9f-22b4-428b-9683-f80f0c126e2a'
       cliSources: '.'
-      extraProperties: |
-        sonar.python.version=3
-        sonar.projectVersion=1.0
+      #extraProperties: |
+      #  sonar.python.version=3
+      #  sonar.projectVersion=1.0
   - task: SonarQubeAnalyze@4
   - task: SonarQubePublish@4
     inputs:
