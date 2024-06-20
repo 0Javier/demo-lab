@@ -1,47 +1,38 @@
 trigger:
-- master
+- main
 
 pool: demo-lab-pool
 
 variables:
-  SONAR_TOKEN: $(SONAR_TOKEN)
-  DOCKER_IMAGE: 'demo-lab'
+  DOCKER_IMAGE: 'javierk38/demo-lab'
   DOCKER_REGISTRY: 'dockerHub'
-  DOCKER_USERNAME: $(DOCKER_USERNAME)
-  DOCKER_PASSWORD: $(DOCKER_PASSWORD)
+  
 
 jobs:
 - job: SonarQubeAnalysis
   displayName: 'Run SonarQube Analysis'
   steps:
-  - script: |
-      sudo apt-get update
-      sudo apt-get install openjdk-11-jdk -y
-    displayName: 'Install JDK'
-  
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: '3.x'
-      addToPath: true
 
   - script: |
-      python -m venv venv
+      cd app
+      python3 -m venv venv
       source venv/bin/activate
       pip install -r requirements.txt
     displayName: 'Install dependencies'
 
-  - task: SonarQubePrepare@4
+  - task: SonarQubePrepare@6
     inputs:
       SonarQube: 'demo-lab-sonar'
       scannerMode: 'CLI'
       configMode: 'manual'
       cliProjectKey: 'demo-lab_demo-lab_65daae9f-22b4-428b-9683-f80f0c126e2a'
-      cliSources: '.'
+      cliSources: 'app'
       extraProperties: |
         sonar.python.version=3
         sonar.projectVersion=1.0
-  - task: SonarQubeAnalyze@4
-  - task: SonarQubePublish@4
+    displayName: 'Prepare SonarQube analysis'
+  - task: SonarQubeAnalyze@6
+  - task: SonarQubePublish@6
     inputs:
       pollingTimeoutSec: '300'
 
@@ -53,23 +44,24 @@ jobs:
   steps:
   - task: Docker@2
     inputs:
+      containerRegistry: 'dockerHub'
+      command: 'login'
+  - task: Docker@2
+    inputs:
       containerRegistry: '$(DOCKER_REGISTRY)'
       repository: '$(DOCKER_IMAGE)'
       command: 'buildAndPush'
-      Dockerfile: '**/Dockerfile'
+      Dockerfile: 'app/Dockerfile'
+      buildContext: 'app'
       tags: |
         $(Build.BuildId)
-      buildContext: '.'
-
-  - script: |
-      echo $(DOCKER_PASSWORD) | docker login $(DOCKER_REGISTRY) --username $(DOCKER_USERNAME) --password-stdin
-      docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(Build.BuildId)
-    displayName: 'Login and Push Docker Image'
+        latest
+  
+  
 
 - job: HelloWorld
   displayName: 'Imprimir Hola Mundo 10 veces'
-  pool:
-    vmImage: 'ubuntu-latest'
+  pool: demo-lab-pool
   steps:
   - script: |
       for i in {1..10}
@@ -80,8 +72,7 @@ jobs:
 
 - job: CreateFiles
   displayName: 'Crear archivos e imprimirlos'
-  pool:
-    vmImage: 'ubuntu-latest'
+  pool: demo-lab-pool
   steps:
   - script: |
       for i in {1..10}
