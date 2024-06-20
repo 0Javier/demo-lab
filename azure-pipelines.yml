@@ -1,8 +1,7 @@
 trigger:
 - master
 
-pool:
-  vmImage: 'ubuntu-latest'
+pool: demo-lab-pool
 
 variables:
   SONAR_TOKEN: $(SONAR_TOKEN)
