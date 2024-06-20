@@ -17,5 +17,6 @@ spec:
       containers:
       - name: demo-lab
         image: javierk38/demo-lab:latest
+        imagePullPolicy: Always
         ports:
         - containerPort: 8000
