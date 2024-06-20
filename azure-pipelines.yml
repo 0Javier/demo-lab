@@ -4,11 +4,11 @@ trigger:
 pool: demo-lab-pool
 
 variables:
-  SONAR_TOKEN: $(SONAR_TOKEN)
+  #SONAR_TOKEN: $(SONAR_TOKEN)
   DOCKER_IMAGE: 'demo-lab'
   DOCKER_REGISTRY: 'dockerHub'
-  DOCKER_USERNAME: $(DOCKER_USERNAME)
-  DOCKER_PASSWORD: $(DOCKER_PASSWORD)
+  #DOCKER_USERNAME: $(DOCKER_USERNAME)
+  #DOCKER_PASSWORD: $(DOCKER_PASSWORD)
 
 jobs:
 - job: SonarQubeAnalysis
