@@ -14,11 +14,7 @@ jobs:
 - job: SonarQubeAnalysis
   displayName: 'Run SonarQube Analysis'
   steps:
-  - script: |
-      sudo apt-get update
-      sudo apt-get install openjdk-11-jdk -y
-    displayName: 'Install JDK'
-  
+
   - task: UsePythonVersion@0
     inputs:
       versionSpec: '3.x'
