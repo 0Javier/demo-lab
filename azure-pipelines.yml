@@ -6,6 +6,7 @@ pool: demo-lab-pool
 variables:
   DOCKER_IMAGE: 'javierk38/demo-lab'
   DOCKER_REGISTRY: 'dockerHub'
+  BUILD_TAG: $(Build.BuildId)
   
 
 jobs:

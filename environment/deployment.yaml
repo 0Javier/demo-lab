@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: demo-lab
-        image: javierk38/demo-lab:TAG_PLACEHOLDER
+        image: javierk38/demo-lab:TAG_PLACEHOLDER #este tag se cambia por el tag que se compila en el build de docker
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
