@@ -56,7 +56,18 @@ jobs:
       tags: |
         $(Build.BuildId)
         latest
-  
+
+- job: DeployToMinikube
+  displayName: 'Deploy to Minikube'
+  dependsOn: DockerBuildPush
+  condition: succeeded()
+
+  steps:
+  - script: |
+      kubectl apply -f environment/deployment.yaml
+      kubectl apply -f environment/service.yaml
+      kubectl apply -f environment/ingress.yaml
+    displayName: 'Deploy to Minikube' 
   
 
 - job: HelloWorld
@@ -81,4 +92,4 @@ jobs:
         cat "file_$i.txt"
       done
       ls
-    displayName: 'Create 10 files with date and display them'
+    displayName: 'Script de creaciom y presentacion'
