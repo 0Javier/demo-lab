@@ -1,13 +1,12 @@
 trigger:
 - master
 
-pool:
-  vmImage: 'ubuntu-latest'
+pool: demo-lab-pool
 
 variables:
   SONAR_TOKEN: $(SONAR_TOKEN)
   DOCKER_IMAGE: 'demo-lab'
-  DOCKER_REGISTRY: 'javierk38'
+  DOCKER_REGISTRY: 'dockerHub'
   DOCKER_USERNAME: $(DOCKER_USERNAME)
   DOCKER_PASSWORD: $(DOCKER_PASSWORD)
 
@@ -33,7 +32,7 @@ jobs:
 
   - task: SonarQubePrepare@4
     inputs:
-      SonarQube: 'SonarQube'
+      SonarQube: 'demo-lab-sonar'
       scannerMode: 'CLI'
       configMode: 'manual'
       cliProjectKey: 'demo-lab_demo-lab_65daae9f-22b4-428b-9683-f80f0c126e2a'
