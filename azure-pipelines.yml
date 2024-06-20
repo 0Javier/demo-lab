@@ -64,7 +64,7 @@ jobs:
 
   steps:
   - script: |
-      sed -i 's#$(DOCKER_IMAGE):.*#$(DOCKER_IMAGE):$(BUILD_TAG)#' environment/deployment.yaml
+      sed -i 's#TAG_PLACEHOLDER#$(BUILD_TAG)#g' environment/deployment.yaml
       kubectl apply -f environment/deployment.yaml
       kubectl apply -f environment/service.yaml
       kubectl apply -f environment/ingress.yaml

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: demo-lab
-        image: javierk38/demo-lab:$(BUILD_TAG)
+        image: javierk38/demo-lab:TAG_PLACEHOLDER
         imagePullPolicy: Always
         ports:
         - containerPort: 8000
