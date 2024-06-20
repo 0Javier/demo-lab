@@ -16,9 +16,10 @@ jobs:
   steps:
 
   - script: |
+      cd app
       python3 -m venv venv
       source venv/bin/activate
-      pip install -r app/requirements.txt
+      pip install -r requirements.txt
     displayName: 'Install dependencies'
 
   - task: SonarQubePrepare@6
@@ -27,10 +28,11 @@ jobs:
       scannerMode: 'CLI'
       configMode: 'manual'
       cliProjectKey: 'demo-lab_demo-lab_65daae9f-22b4-428b-9683-f80f0c126e2a'
-      cliSources: '.'
+      cliSources: 'app'
       extraProperties: |
         sonar.python.version=3
         sonar.projectVersion=1.0
+    displayName: 'Prepare SonarQube analysis'
   - task: SonarQubeAnalyze@6
   - task: SonarQubePublish@6
     inputs:
@@ -52,7 +54,7 @@ jobs:
       repository: '$(DOCKER_IMAGE)'
       command: 'buildAndPush'
       Dockerfile: 'app/Dockerfile'
-      buildContext: '.'
+      buildContext: 'app'
       tags: '$(Build.BuildId)'
 
 - job: HelloWorld
