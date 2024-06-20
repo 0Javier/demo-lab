@@ -49,23 +49,20 @@ jobs:
   steps:
   - task: Docker@2
     inputs:
+      containerRegistry: 'dockerHub'
+      command: 'login'
+  - task: Docker@2
+    inputs:
       containerRegistry: '$(DOCKER_REGISTRY)'
       repository: '$(DOCKER_IMAGE)'
       command: 'buildAndPush'
-      Dockerfile: '**/Dockerfile'
-      tags: |
-        $(Build.BuildId)
+      Dockerfile: 'app/Dockerfile'
       buildContext: '.'
-
-  - script: |
-      echo $(DOCKER_PASSWORD) | docker login $(DOCKER_REGISTRY) --username $(DOCKER_USERNAME) --password-stdin
-      docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(Build.BuildId)
-    displayName: 'Login and Push Docker Image'
+      tags: '$(Build.BuildId)'
 
 - job: HelloWorld
   displayName: 'Imprimir Hola Mundo 10 veces'
-  pool:
-    vmImage: 'ubuntu-latest'
+  pool: demo-lab-pool
   steps:
   - script: |
       for i in {1..10}
@@ -76,8 +73,7 @@ jobs:
 
 - job: CreateFiles
   displayName: 'Crear archivos e imprimirlos'
-  pool:
-    vmImage: 'ubuntu-latest'
+  pool: demo-lab-pool
   steps:
   - script: |
       for i in {1..10}
