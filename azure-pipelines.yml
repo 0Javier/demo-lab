@@ -1,0 +1,94 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  SONAR_TOKEN: $(SONAR_TOKEN)
+  DOCKER_IMAGE: 'demo-lab'
+  DOCKER_REGISTRY: 'javierk38'
+  DOCKER_USERNAME: $(DOCKER_USERNAME)
+  DOCKER_PASSWORD: $(DOCKER_PASSWORD)
+
+jobs:
+- job: SonarQubeAnalysis
+  displayName: 'Run SonarQube Analysis'
+  steps:
+  - script: |
+      sudo apt-get update
+      sudo apt-get install openjdk-11-jdk -y
+    displayName: 'Install JDK'
+  
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.x'
+      addToPath: true
+
+  - script: |
+      python -m venv venv
+      source venv/bin/activate
+      pip install -r requirements.txt
+    displayName: 'Install dependencies'
+
+  - task: SonarQubePrepare@4
+    inputs:
+      SonarQube: 'SonarQube'
+      scannerMode: 'CLI'
+      configMode: 'manual'
+      cliProjectKey: 'demo-lab_demo-lab_65daae9f-22b4-428b-9683-f80f0c126e2a'
+      cliSources: '.'
+      extraProperties: |
+        sonar.python.version=3
+        sonar.projectVersion=1.0
+  - task: SonarQubeAnalyze@4
+  - task: SonarQubePublish@4
+    inputs:
+      pollingTimeoutSec: '300'
+
+- job: DockerBuildPush
+  displayName: 'Build and Push Docker Image'
+  dependsOn: SonarQubeAnalysis
+  condition: succeeded()
+
+  steps:
+  - task: Docker@2
+    inputs:
+      containerRegistry: '$(DOCKER_REGISTRY)'
+      repository: '$(DOCKER_IMAGE)'
+      command: 'buildAndPush'
+      Dockerfile: '**/Dockerfile'
+      tags: |
+        $(Build.BuildId)
+      buildContext: '.'
+
+  - script: |
+      echo $(DOCKER_PASSWORD) | docker login $(DOCKER_REGISTRY) --username $(DOCKER_USERNAME) --password-stdin
+      docker push $(DOCKER_REGISTRY)/$(DOCKER_IMAGE):$(Build.BuildId)
+    displayName: 'Login and Push Docker Image'
+
+- job: HelloWorld
+  displayName: 'Imprimir Hola Mundo 10 veces'
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - script: |
+      for i in {1..10}
+      do
+        echo "Hola Mundo"
+      done
+    displayName: 'ECHO Hola Mundo 10 veces'
+
+- job: CreateFiles
+  displayName: 'Crear archivos e imprimirlos'
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+  - script: |
+      for i in {1..10}
+      do
+        echo "$(date)" > "file_$i.txt"
+        cat "file_$i.txt"
+      done
+      ls
+    displayName: 'Create 10 files with date and display them'
